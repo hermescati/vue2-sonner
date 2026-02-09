@@ -1,0 +1,16 @@
+src/
+dev/
+.idea/
+node_modules/
+dist/
+*.local
+.DS_Store
+.git
+.gitignore
+.env
+.env.local
+pnpm-workspace.yaml
+vite.config.ts
+tsconfig.json
+unocss.config.ts
+.claude/
