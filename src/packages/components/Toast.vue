@@ -4,11 +4,10 @@
     ref="toastRef"
     :class="
       cn(
-        props.class,
         toastClass,
-        classes && classes.toast,
+        toastClasses.toast,
         toast.classes && toast.classes.toast,
-        classes && classes[toastType],
+        toastClasses[toastType],
         toast.classes && toast.classes[toastType]
       )
     "
@@ -38,7 +37,7 @@
       '--z-index': toasts.length - index,
       '--offset': `${removed ? offsetBeforeRemove : offset}px`,
       '--initial-height': expandByDefault ? 'auto' : `${initialHeight}px`,
-      ...style,
+      ...toastStyle,
       ...toast.style
     }"
     @dragend="handleDragEnd"
@@ -53,11 +52,11 @@
         :data-disabled="String(disabled)"
         data-close-button="true"
         :data-close-button-position="closeButtonPosition"
-        :class="cn(classes && classes.closeButton, toast.classes && toast.classes.closeButton)"
+        :class="cn(toastClasses.closeButton, toast.classes && toast.classes.closeButton)"
         @click="handleCloseToast"
       >
-        <template v-if="icons && icons.close">
-          <component :is="icons.close" />
+        <template v-if="toastIcons.close">
+          <component :is="toastIcons.close" />
         </template>
         <template v-else>
           <slot name="close-icon" />
@@ -81,7 +80,7 @@
       <template v-if="toastType !== 'default' || toast.icon || toast.promise">
         <div
           data-icon=""
-          :class="cn(classes && classes.icon, toast.classes && toast.classes.icon)"
+          :class="cn(toastClasses.icon, toast.classes && toast.classes.icon)"
         >
           <component v-if="toast.icon" :is="toast.icon" />
           <template v-else>
@@ -97,12 +96,12 @@
       <!-- Content -->
       <div
         data-content=""
-        :class="cn(classes && classes.content, toast.classes && toast.classes.content)"
+        :class="cn(toastClasses.content, toast.classes && toast.classes.content)"
       >
         <!-- Title -->
         <div
           data-title=""
-          :class="cn(classes && classes.title, toast.classes && toast.classes.title)"
+          :class="cn(toastClasses.title, toast.classes && toast.classes.title)"
         >
           <template v-if="isStringOfTitle">
             <component :is="toast.title" v-bind="getProps()" />
@@ -120,7 +119,7 @@
               cn(
                 descriptionClass,
                 toastDescriptionClass,
-                classes && classes.description,
+                toastClasses.description,
                 toast.classes && toast.classes.description
               )
             "
@@ -139,7 +138,7 @@
       <template v-if="toast.cancel">
         <button
           :style="toast.cancelButtonStyle || cancelButtonStyle"
-          :class="cn(classes && classes.cancelButton, toast.classes && toast.classes.cancelButton)"
+          :class="cn(toastClasses.cancelButton, toast.classes && toast.classes.cancelButton)"
           data-button
           data-cancel
           @click="
@@ -159,7 +158,7 @@
       <template v-if="toast.action">
         <button
           :style="toast.actionButtonStyle || actionButtonStyle"
-          :class="cn(classes && classes.actionButton, toast.classes && toast.classes.actionButton)"
+          :class="cn(toastClasses.actionButton, toast.classes && toast.classes.actionButton)"
           data-button
           data-action
           @click="
@@ -218,11 +217,11 @@ const props = defineProps<{
   expandByDefault: boolean;
   closeButton: boolean;
   interacting: boolean;
-  style?: CSSProperties;
   cancelButtonStyle?: CSSProperties;
   actionButtonStyle?: CSSProperties;
   duration?: number;
-  class: string;
+  toastClass?: string;
+  toastStyle?: CSSProperties;
   unstyled?: boolean;
   descriptionClass?: string;
   loadingIcon?: Component;
@@ -260,6 +259,8 @@ const toastType = computed(() => props.toast.type)
 const dismissible = computed(() => props.toast.dismissible !== false)
 const toastClass = computed(() => props.toast.class || '')
 const toastDescriptionClass = computed(() => props.descriptionClass || '')
+const toastClasses = computed(() => props.classes || ({} as ToastClasses))
+const toastIcons = computed(() => props.icons || ({} as ToastIcons))
 
 const heightIndex = computed(() => {
   // Only calculate the index of toasts in the same position

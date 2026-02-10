@@ -1,5 +1,4 @@
 <template>
-  <!-- Remove item from normal navigation flow, only available via hotkey -->
   <section
     :aria-label="`${containerAriaLabel} ${hotkeyLabel}`"
     :tabIndex="-1"
@@ -7,116 +6,124 @@
     aria-relevant="additions text"
     aria-atomic="false"
   >
-      <ol
-        v-for="(pos, index) in possiblePositions"
-        :key="pos"
-        ref="listRef"
-        data-sonner-toaster
-        :data-sonner-theme="actualTheme"
-        :class="props.class"
-        :dir="dir === 'auto' ? getDocumentDirection() : dir"
-        :tabIndex="-1"
-        :data-theme="theme"
-        :data-rich-colors="String(richColors)"
-        :data-y-position="pos.split('-')[0]"
-        :data-x-position="pos.split('-')[1]"
-        :style="{
-          '--front-toast-height': `${heights[0]?.height || 0}px`,
-          '--width': `${TOAST_WIDTH}px`,
-          '--gap': `${gap}px`,
-          ...style,
-          ...assignOffset(offset, mobileOffset),
-        }"
-        v-bind="$attrs"
-        @blur="onBlur"
-        @focus="onFocus"
-        @mouseenter="handleMouseEnter"
-        @mousemove="handleMouseEnter"
-        @mouseleave="handleMouseLeave"
-        @dragend="handleDragEnd"
-        @pointerdown="onPointerDown"
-        @pointerup="handlePointerUp"
+    <ol
+      v-for="(pos, index) in possiblePositions"
+      :key="pos"
+      ref="listRef"
+      data-sonner-toaster
+      :data-sonner-theme="actualTheme"
+      :class="toastClass"
+      :dir="dir === 'auto' ? getDocumentDirection() : dir"
+      :tabIndex="-1"
+      :data-theme="theme"
+      :data-rich-colors="String(richColors)"
+      :data-y-position="pos.split('-')[0]"
+      :data-x-position="pos.split('-')[1]"
+      :style="{
+        '--front-toast-height': `${heights[0]?.height || 0}px`,
+        '--width': `${TOAST_WIDTH}px`,
+        '--gap': `${gap}px`,
+        ...toastStyle,
+        ...assignOffset(offset, mobileOffset),
+      }"
+      v-bind="$attrs"
+      @blur="onBlur"
+      @focus="onFocus"
+      @mouseenter="handleMouseEnter"
+      @mousemove="handleMouseEnter"
+      @mouseleave="handleMouseLeave"
+      @dragend="handleDragEnd"
+      @pointerdown="onPointerDown"
+      @pointerup="handlePointerUp"
+    >
+      <Toast
+        v-for="(toast, idx) in filteredToasts(pos, index)"
+        :key="toast.id"
+        :heights="heights"
+        :icons="icons"
+        :index="idx"
+        :toast="toast"
+        :defaultRichColors="richColors"
+        :duration="toastOptions?.duration ?? duration"
+        :toastClass="toastOptions?.class ?? ''"
+        :toastStyle="toastOptions?.style"
+        :descriptionClass="toastOptions?.descriptionClass"
+        :invert="invert"
+        :visibleToasts="visibleToasts"
+        :closeButton="toastOptions?.closeButton ?? closeButton"
+        :interacting="interacting"
+        :position="pos"
+        :closeButtonPosition="toastOptions?.closeButtonPosition ?? closeButtonPosition"
+        :unstyled="toastOptions?.unstyled"
+        :classes="toastOptions?.classes"
+        :cancelButtonStyle="toastOptions?.cancelButtonStyle"
+        :actionButtonStyle="toastOptions?.actionButtonStyle"
+        :close-button-aria-label="toastOptions?.closeButtonAriaLabel"
+        :toasts="toastsByPosition[pos]"
+        :expandByDefault="expand"
+        :gap="gap"
+        :expanded="expanded[pos] || false"
+        :swipeDirections="props.swipeDirections"
+        @update:heights="updateHeights"
+        @update:height="updateHeight"
+        @removeToast="removeToast"
       >
-          <Toast
-            v-for="(toast, idx) in filteredToasts(pos, index)"
-            :key="toast.id"
-            :heights="heights"
-            :icons="icons"
-            :index="idx"
-            :toast="toast"
-            :defaultRichColors="richColors"
-            :duration="toastOptions?.duration ?? duration"
-            :class="toastOptions?.class ?? ''"
-            :descriptionClass="toastOptions?.descriptionClass"
-            :invert="invert"
-            :visibleToasts="visibleToasts"
-            :closeButton="toastOptions?.closeButton ?? closeButton"
-            :interacting="interacting"
-            :position="pos"
-            :closeButtonPosition="toastOptions?.closeButtonPosition ?? closeButtonPosition"
-            :style="toastOptions?.style"
-            :unstyled="toastOptions?.unstyled"
-            :classes="toastOptions?.classes"
-            :cancelButtonStyle="toastOptions?.cancelButtonStyle"
-            :actionButtonStyle="toastOptions?.actionButtonStyle"
-            :close-button-aria-label="toastOptions?.closeButtonAriaLabel"
-            :toasts="toastsByPosition[pos]"
-            :expandByDefault="expand"
-            :gap="gap"
-            :expanded="expanded[pos] || false"
-            :swipeDirections="props.swipeDirections"
-            @update:heights="updateHeights"
-            @update:height="updateHeight"
-            @removeToast="removeToast"
-          >
-            <template #close-icon>
-              <slot name="close-icon">
-                <CloseIcon />
-              </slot>
-            </template>
+        <template #close-icon>
+          <slot name="close-icon">
+            <CloseIcon />
+          </slot>
+        </template>
 
-            <template #loading-icon>
-              <slot name="loading-icon">
-                <LoaderIcon :visible="toast.type === 'loading'" />
-              </slot>
-            </template>
+        <template #loading-icon>
+          <slot name="loading-icon">
+            <LoaderIcon :visible="toast.type === 'loading'" />
+          </slot>
+        </template>
 
-            <template #success-icon>
-              <slot name="success-icon">
-                <SuccessIcon />
-              </slot>
-            </template>
+        <template #success-icon>
+          <slot name="success-icon">
+            <SuccessIcon />
+          </slot>
+        </template>
 
-            <template #error-icon>
-              <slot name="error-icon">
-                <ErrorIcon />
-              </slot>
-            </template>
+        <template #error-icon>
+          <slot name="error-icon">
+            <ErrorIcon />
+          </slot>
+        </template>
 
-            <template #warning-icon>
-              <slot name="warning-icon">
-                <WarningIcon />
-              </slot>
-            </template>
+        <template #warning-icon>
+          <slot name="warning-icon">
+            <WarningIcon />
+          </slot>
+        </template>
 
-            <template #info-icon>
-              <slot name="info-icon">
-                <InfoIcon />
-              </slot>
-            </template>
-          </Toast>
-      </ol>
+        <template #info-icon>
+          <slot name="info-icon">
+            <InfoIcon />
+          </slot>
+        </template>
+      </Toast>
+    </ol>
   </section>
 </template>
 
 <script lang="ts" setup>
-import {
-  computed, type CSSProperties, nextTick, ref, watchEffect
-} from 'vue';
+import { computed, type CSSProperties, nextTick, ref, watchEffect } from 'vue';
 import type {
-  HeightT, Position, ToastT, ToastToDismiss, ToasterProps, Theme, CloseButtonPosition, ToastOptions, Offset, SwipeDirection, ToastIcons
-} from '../types.ts';
-import { ToastState } from '../state.ts'
+  CloseButtonPosition,
+  HeightT,
+  Offset,
+  Position,
+  SwipeDirection,
+  Theme,
+  ToasterProps,
+  ToastIcons,
+  ToastOptions,
+  ToastT,
+  ToastToDismiss
+} from '../types';
+import { ToastState } from '../state'
 import Toast from './Toast.vue'
 import CloseIcon from '@/packages/assets/CloseIcon.vue'
 import LoaderIcon from '@/packages/assets/Loader.vue'
@@ -124,15 +131,21 @@ import SuccessIcon from '@/packages/assets/SuccessIcon.vue'
 import InfoIcon from '@/packages/assets/InfoIcon.vue'
 import WarningIcon from '@/packages/assets/WarningIcon.vue'
 import ErrorIcon from '@/packages/assets/ErrorIcon.vue'
-import { assignOffset } from '../hooks.ts'
-import { GAP, MOBILE_VIEWPORT_OFFSET, TOAST_WIDTH, VIEWPORT_OFFSET, VISIBLE_TOASTS_AMOUNT, TIME_BEFORE_UNMOUNT } from '../constant.ts'
+import { assignOffset } from '../hooks'
+import {
+  GAP,
+  MOBILE_VIEWPORT_OFFSET,
+  TIME_BEFORE_UNMOUNT,
+  TOAST_WIDTH,
+  VIEWPORT_OFFSET,
+  VISIBLE_TOASTS_AMOUNT
+} from '../constant'
 
-const isClient =
-  typeof window !== 'undefined' && typeof document !== 'undefined'
+const isClient = typeof window !== 'undefined' && typeof document !== 'undefined'
 
 function getDocumentDirection(): ToasterProps['dir'] {
   if (typeof window === 'undefined') return 'ltr'
-  if (typeof document === 'undefined') return 'ltr' // For Fresh purpose
+  if (typeof document === 'undefined') return 'ltr'
 
   const dirAttribute = document.documentElement.getAttribute('dir')
 
@@ -143,7 +156,6 @@ function getDocumentDirection(): ToasterProps['dir'] {
 
   return dirAttribute as ToasterProps['dir']
 }
-
 
 const props = withDefaults(defineProps<{
   id?: string;
@@ -159,8 +171,8 @@ const props = withDefaults(defineProps<{
   visibleToasts?: number;
   closeButton?: boolean;
   toastOptions?: ToastOptions;
-  class?: string;
-  style?: CSSProperties;
+  toastClass?: string;
+  toastStyle?: CSSProperties;
   offset?: Offset;
   mobileOffset?: Offset;
   dir?: 'rtl' | 'ltr' | 'auto';
@@ -174,13 +186,13 @@ const props = withDefaults(defineProps<{
   hotkey: () => ['altKey', 'KeyT'],
   expand: false,
   closeButton: false,
-  class: '',
+  toastClass: '',
   offset: VIEWPORT_OFFSET,
   mobileOffset: MOBILE_VIEWPORT_OFFSET,
   theme: 'light',
   richColors: false,
   visibleToasts: VISIBLE_TOASTS_AMOUNT,
-  toastOptions: () => ({}),
+  toastOptions: () => ({} as ToastOptions),
   dir: 'auto',
   gap: GAP,
   containerAriaLabel: 'Notifications',
