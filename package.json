@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hermescati/vue2-sonner"
+    "url": "git+https://github.com/hermescati/vue2-sonner.git"
   },
   "keywords": [
     "vue",
