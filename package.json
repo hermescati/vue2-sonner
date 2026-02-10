@@ -33,7 +33,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit",
+    "release": "pnpm build && npm version patch && npm publish"
   },
   "dependencies": {
     "vue": "^2.7.16"
