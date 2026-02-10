@@ -2,7 +2,6 @@ src/
 dev/
 .idea/
 node_modules/
-dist/
 *.local
 .DS_Store
 .git
