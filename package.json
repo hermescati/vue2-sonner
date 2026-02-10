@@ -1,6 +1,6 @@
 {
   "name": "vue2-sonner",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "description": "An opinionated toast component for Vue 2",
   "author": "Hermes C",
